@@ -17,6 +17,44 @@ var PieLabelComponent = /** @class */ (function () {
         this.labelTrimSize = 10;
         this.isIE = /(edge|msie|trident)/i.test(navigator.userAgent);
         this.trimLabel = trimLabel;
+        this.getLines = function (labelTrim, labelTrimSize, label) {
+            label = (label || '').trim();
+            if (labelTrim && label.length <= labelTrimSize && labelTrimSize > 3) {
+                return [label];
+            }
+            else {
+                var index = label.indexOf(' ');
+                if (index === -1) {
+                    return label.match(new RegExp('.{1,' + labelTrimSize + '}', 'g'));
+                }
+                var arr = [];
+                while (true) {
+                    label = label.trim();
+                    if (label === '')
+                        break;
+                    var size = label.length < labelTrimSize ? label.length : labelTrimSize;
+                    var nextIndex = label.indexOf(' ', size);
+                    if (nextIndex - size === 1) {
+                        size++;
+                    }
+                    var part = label.substring(0, size);
+                    index = part.lastIndexOf(' ');
+                    if (part.length < size) {
+                        arr.push(part);
+                        break;
+                    }
+                    else if (index < part.length * 0.6) {
+                        arr.push(part);
+                        label = label.substring(size, label.length);
+                    }
+                    else {
+                        arr.push(part.substring(0, index));
+                        label = label.substring(index, label.length);
+                    }
+                }
+                return arr;
+            }
+        };
     }
     PieLabelComponent.prototype.ngOnChanges = function (changes) {
         this.update();
@@ -122,7 +160,7 @@ var PieLabelComponent = /** @class */ (function () {
     PieLabelComponent = __decorate([
         Component({
             selector: 'g[ngx-charts-pie-label]',
-            template: "\n    <title>{{label}}</title>\n    <svg:g\n      [attr.transform]=\"attrTransform\"\n      [style.transform]=\"styleTransform\"\n      [style.transition]=\"textTransition\">\n      <svg:text\n        class=\"pie-label\"\n        [class.animation]=\"animations\"\n        dy=\".35em\"\n        [style.textAnchor]=\"textAnchor()\"\n        [style.shapeRendering]=\"'crispEdges'\">\n        {{labelTrim ? trimLabel(label, labelTrimSize) : label}}\n      </svg:text>\n    </svg:g>\n    <svg:path\n      [attr.d]=\"line\"\n      [attr.stroke]=\"color\"\n      fill=\"none\"\n      class=\"pie-label-line line\"\n      [class.animation]=\"animations\">\n    </svg:path>\n  ",
+            template: "\n    <title>{{label}}</title>\n    <svg:g\n      [attr.transform]=\"attrTransform\"\n      [style.transform]=\"styleTransform\"\n      [style.transition]=\"textTransition\">\n      <svg:text\n        class=\"pie-label\"\n        [class.animation]=\"animations\"\n        dy=\".35em\"\n        [style.textAnchor]=\"textAnchor()\"\n        [style.shapeRendering]=\"'crispEdges'\">\n        <tspan x=\"0\" [attr.dy]=\"index == 0 ? '0' : '1.2em'\"\n            *ngFor=\"let line of getLines(labelTrim, labelTrimSize, label); let index = index\">\n            {{line}}\n          </tspan>\n      </svg:text>\n    </svg:g>\n    <svg:path\n      [attr.d]=\"line\"\n      [attr.stroke]=\"color\"\n      fill=\"none\"\n      class=\"pie-label-line line\"\n      [class.animation]=\"animations\">\n    </svg:path>\n  ",
             changeDetection: ChangeDetectionStrategy.OnPush
         }),
         __metadata("design:paramtypes", [])

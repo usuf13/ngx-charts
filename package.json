@@ -1,7 +1,7 @@
 {
-  "name": "@swimlane/ngx-charts",
-  "version": "7.3.0",
-  "description": "Declarative Charting Framework for Angular2 and beyond!",
+  "name": "usuf13-charts",
+  "version": "7.3.3",
+  "description": "Declarative Charting Framework for Angular2 and beyond. Private fork!",
   "main": "release/index.js",
   "typings": "release/index.d.ts",
   "scripts": {
@@ -41,7 +41,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/swimlane/ngx-charts.git"
+    "url": "git+https://github.com/usuf13/ngx-charts.git"
   },
   "keywords": [
     "angular",

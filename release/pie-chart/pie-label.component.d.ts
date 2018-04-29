@@ -11,6 +11,7 @@ export declare class PieLabelComponent implements OnChanges {
     labelTrim: boolean;
     labelTrimSize: number;
     trimLabel: (label: string, max?: number) => string;
+    getLines: (labelTrim: boolean, labelTrimSize: number, label: string) => string[];
     line: string;
     private readonly isIE;
     constructor();

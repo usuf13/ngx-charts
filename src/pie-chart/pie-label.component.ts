@@ -23,7 +23,10 @@ import { trimLabel } from '../common/trim-label.helper';
         dy=".35em"
         [style.textAnchor]="textAnchor()"
         [style.shapeRendering]="'crispEdges'">
-        {{labelTrim ? trimLabel(label, labelTrimSize) : label}}
+        <tspan x="0" [attr.dy]="index == 0 ? '0' : '1.2em'"
+            *ngFor="let line of getLines(labelTrim, labelTrimSize, label); let index = index">
+            {{line}}
+          </tspan>
       </svg:text>
     </svg:g>
     <svg:path
@@ -50,12 +53,55 @@ export class PieLabelComponent implements OnChanges {
   @Input() labelTrimSize: number = 10;
 
   trimLabel: (label: string, max?: number) => string;
+  getLines: (labelTrim: boolean, labelTrimSize: number, label: string) => string[];
   line: string;
 
   private readonly isIE = /(edge|msie|trident)/i.test(navigator.userAgent);
 
   constructor() {
     this.trimLabel = trimLabel;
+    this.getLines = function(labelTrim, labelTrimSize, label) {
+      label = (label || '').trim();
+
+      if (labelTrim && label.length <= labelTrimSize && labelTrimSize > 3) {
+        return [label];
+      } else {
+        let index = label.indexOf(' ');
+        if (index === -1) {
+          return label.match(new RegExp('.{1,' + labelTrimSize + '}', 'g'));
+        }
+
+        const arr = [];
+        while (true) {
+          label = label.trim();
+          if (label === '')
+            break;
+
+          let size = label.length < labelTrimSize ? label.length : labelTrimSize;
+
+          const nextIndex = label.indexOf(' ', size);
+          if (nextIndex - size === 1) {
+            size++
+          }
+
+          const part = label.substring(0, size);
+          index = part.lastIndexOf(' ');
+
+          if (part.length < size) {
+            arr.push(part);
+            break;
+          } else if (index < part.length * 0.6) {
+            arr.push(part);
+            label = label.substring(size, label.length);
+          } else {
+            arr.push(part.substring(0, index));
+            label = label.substring(index, label.length);
+          }
+        }
+
+        return arr;
+      }
+    };
   }
 
   ngOnChanges(changes: SimpleChanges): void {
